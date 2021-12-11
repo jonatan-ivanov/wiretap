@@ -12,6 +12,7 @@ repositories {
 dependencies {
 	implementation platform('io.projectreactor:reactor-bom:latest.release')
 	implementation 'io.projectreactor.netty:reactor-netty-core'
+	implementation 'io.projectreactor.netty:reactor-netty-http'
 	implementation 'org.slf4j:slf4j-api'
 	implementation 'ch.qos.logback:logback-classic:1.2.+'
 }
@@ -42,7 +43,7 @@ jar {
 task stage {
 	dependsOn assemble
 	doLast {
-		file('Procfile').text = "web: java -jar ${relativePath(jar.archiveFile)} --port \$PORT"
+		file('Procfile').text = "web: java -jar ${relativePath(jar.archiveFile)} --http --port \$PORT"
 	}
 }
 

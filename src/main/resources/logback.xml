@@ -7,6 +7,7 @@
 	</appender>
 
 	<logger name="reactor.netty.tcp.TcpServer" level="DEBUG" />
+	<logger name="reactor.netty.http.server.HttpServer" level="DEBUG" />
 
 	<root level="INFO">
 		<appender-ref ref="CONSOLE" />
