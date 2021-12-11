@@ -1,0 +1,55 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+	mavenCentral()
+}
+dependencies {
+	implementation platform('io.projectreactor:reactor-bom:latest.release')
+	implementation 'io.projectreactor.netty:reactor-netty-core'
+	implementation 'org.slf4j:slf4j-api'
+	implementation 'ch.qos.logback:logback-classic:1.2.+'
+}
+
+dependencyLocking {
+	lockAllConfigurations()
+}
+
+task resolveAndLockAll { // ./gradlew resolveAndLockAll --write-locks
+	doFirst {
+		assert gradle.startParameter.writeDependencyLocks
+	}
+	doLast {
+		configurations.findAll { it.canBeResolved }.each { it.resolve() }
+	}
+}
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	manifest {
+		attributes 'Main-Class': 'com.develotters.wiretap.Main'
+	}
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
+
+task stage {
+	dependsOn assemble
+	doLast {
+		file('Procfile').text = "web: java -jar ${relativePath(jar.archiveFile)} --port \$PORT"
+	}
+}
+
+task cleanAll {
+	dependsOn clean, cleanIdea, cleanIdeaWorkspace
+}
+
+wrapper {
+	// gradleVersion = new groovy.json.JsonSlurper().parseText('https://services.gradle.org/versions/current'.toURL().text).version
+}
